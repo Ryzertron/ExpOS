@@ -1,2 +1,24 @@
+//Saving User SP
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+// Setting SP to UArea Page number * 512 - 1
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+//Save user ctx to kernel stack
+backup;
+
 print "Timer_INT";
+
+
+//restore user ctx from kernel stack
+restore;
+
+//set SP to userSP
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+
 ireturn;
+
+
+
+

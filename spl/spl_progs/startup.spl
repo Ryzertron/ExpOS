@@ -53,6 +53,13 @@ loadi(3, 16);
 [PTBR+18] = 77;
 [PTBR+19] = "0110";
 
+//Populate Process table
+[PROCESS_TABLE + 11] = 80;
+[PROCESS_TABLE + 1] = 0;
+
+//Populate System status table
+[SYSTEM_STATUS_TABLE + 1] = 0;
+
 
 
 //Set Stack Pointer and value at address to zero for setting IP
