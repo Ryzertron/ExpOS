@@ -8,7 +8,7 @@ SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 //Save user ctx to kernel stack
 backup;
 
-print "Timer_INT";
+print [SYSTEM_STATUS_TABLE + 1];
 
 
 //restore user ctx from kernel stack
