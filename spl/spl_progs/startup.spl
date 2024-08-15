@@ -6,6 +6,10 @@ loadi(66,8);
 loadi(63,13);
 loadi(64,14);
 
+//Load Timer Interrupt
+loadi(4, 17);
+loadi(5, 18);
+
 //LOAD INT10
 loadi(22,35);
 loadi(23,36);
