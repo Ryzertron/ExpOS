@@ -1,13 +1,19 @@
+type
+Student{
+str name;
+int marks;
+}
+endtype
 int main(){
 	decl
-		int temp, num;
+		Student stud;
+		int x;
 	enddecl
 	begin
-		num = 1;
-		while (num < 100) do
-			temp = exposcall("Write", -2, num);
-			num = num + 2;
-		endwhile;
-		return 0;
+		x = initialize();
+		stud = alloc();
+		stud.name = "John";
+		stud.marks = 20;
+		return 1;
 	end
 }
