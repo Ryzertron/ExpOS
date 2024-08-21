@@ -1,3 +1,7 @@
+//Load Idle
+loadi(69,11);
+loadi(70,12);
+
 //Load INIT PROGRAM
 loadi(65,7);
 loadi(66,8);
@@ -22,9 +26,50 @@ loadi(23,36);
 loadi(2, 15);
 loadi(3, 16);
 
+//FOR Idle
 
-//Declare PAGE TABLE
- PTBR = PAGE_TABLE_BASE;
+PTBR=PAGE_TABLE_BASE;  //as PID of idle process is 0
+
+//Library
+[PTBR+0] = -1;
+[PTBR+1] = "0000";
+[PTBR+2] = -1;
+[PTBR+3] = "0000";
+
+//Heap
+[PTBR+4] = -1;
+[PTBR+5] = "0000";
+[PTBR+6] = -1;
+[PTBR+7] = "0000";
+
+//Code
+[PTBR+8] = 69;
+[PTBR+9] = "0100";
+[PTBR+10] = 70;
+[PTBR+11] = "0100";
+[PTBR+12] = -1;
+[PTBR+13] = "0000";
+[PTBR+14] = -1;
+[PTBR+15] = "0000";
+
+//Stack
+[PTBR+16] = 81;
+[PTBR+17] = "0110";
+[PTBR+18] = -1;
+[PTBR+19] = "0000";
+
+//Process table for Idle
+[PROCESS_TABLE+1]=0;
+[PROCESS_TABLE+4]=CREATED;
+[PROCESS_TABLE+11]=82;
+[PROCESS_TABLE+12]=0;
+[PROCESS_TABLE+13]=512*8;
+[PROCESS_TABLE+14]=PTBR;
+[PROCESS_TABLE+15]=10;
+
+
+//Declare PAGE TABLE for INIT
+ PTBR = PAGE_TABLE_BASE + 20;
  PTLR = 10;
  
  
@@ -58,16 +103,22 @@ loadi(3, 16);
 [PTBR+19] = "0110";
 
 //Populate Process table
-[PROCESS_TABLE + 11] = 80;
-[PROCESS_TABLE + 1] = 0;
+[PROCESS_TABLE+16+1]=1;
+[PROCESS_TABLE+16+4]=RUNNING;
+[PROCESS_TABLE+16+11]=80;
+[PROCESS_TABLE+16+12]=0;
+[PROCESS_TABLE+16+13]=8*512;
+[PROCESS_TABLE+16+14]=PTBR;
+[PROCESS_TABLE+16+15]=10;
 
 //Populate System status table
-[SYSTEM_STATUS_TABLE + 1] = 0;
+[SYSTEM_STATUS_TABLE + 1] = 1;
 
 
 
 //Set Stack Pointer and value at address to zero for setting IP
 [76*512] = [65 * 512 + 1];
 SP = 8*512;
+[81*512]=[69*512+1];
 
 ireturn;
