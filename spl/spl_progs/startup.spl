@@ -1,123 +1,60 @@
-//Load Idle
-loadi(69,11);
-loadi(70,12);
+//load BOOT
+loadi(54,67);
+loadi(55,68);
 
-//Load INIT PROGRAM
-loadi(65,7);
-loadi(66,8);
-
-//Load Library
-loadi(63,13);
-loadi(64,14);
-
-//Load Timer Interrupt
-loadi(4, 17);
-loadi(5, 18);
-
-//Load INT 7
-loadi(16,29);
-loadi(17,30);
-
-//LOAD INT10
-loadi(22,35);
-loadi(23,36);
-
-//LOAD Exhandler
-loadi(2, 15);
-loadi(3, 16);
+SP = 82*512-1;
+call BOOT_MODULE;
 
 //FOR Idle
-
-PTBR=PAGE_TABLE_BASE;  //as PID of idle process is 0
+PTBR=PAGE_TABLE_BASE; //as PID of idle process is 0
+PTLR = 10;
 
 //Library
-[PTBR+0] = -1;
-[PTBR+1] = "0000";
-[PTBR+2] = -1;
-[PTBR+3] = "0000";
+[PAGE_TABLE_BASE+0] = -1;
+[PAGE_TABLE_BASE+1] = "0000";
+[PAGE_TABLE_BASE+2] = -1;
+[PAGE_TABLE_BASE+3] = "0000";
 
 //Heap
-[PTBR+4] = -1;
-[PTBR+5] = "0000";
-[PTBR+6] = -1;
-[PTBR+7] = "0000";
+[PAGE_TABLE_BASE+4] = -1;
+[PAGE_TABLE_BASE+5] = "0000";
+[PAGE_TABLE_BASE+6] = -1;
+[PAGE_TABLE_BASE+7] = "0000";
 
 //Code
-[PTBR+8] = 69;
-[PTBR+9] = "0100";
-[PTBR+10] = 70;
-[PTBR+11] = "0100";
-[PTBR+12] = -1;
-[PTBR+13] = "0000";
-[PTBR+14] = -1;
-[PTBR+15] = "0000";
+[PAGE_TABLE_BASE+8] = 69;
+[PAGE_TABLE_BASE+9] = "0100";
+[PAGE_TABLE_BASE+10] = 70;
+[PAGE_TABLE_BASE+11] = "0100";
+[PAGE_TABLE_BASE+12] = -1;
+[PAGE_TABLE_BASE+13] = "0000";
+[PAGE_TABLE_BASE+14] = -1;
+[PAGE_TABLE_BASE+15] = "0000";
 
 //Stack
-[PTBR+16] = 81;
-[PTBR+17] = "0110";
-[PTBR+18] = -1;
-[PTBR+19] = "0000";
+[PAGE_TABLE_BASE+16] = 81;
+[PAGE_TABLE_BASE+17] = "0110";
+[PAGE_TABLE_BASE+18] = -1;
+[PAGE_TABLE_BASE+19] = "0000";
 
 //Process table for Idle
 [PROCESS_TABLE+1]=0;
-[PROCESS_TABLE+4]=CREATED;
+[PROCESS_TABLE+4]=RUNNING;
 [PROCESS_TABLE+11]=82;
 [PROCESS_TABLE+12]=0;
 [PROCESS_TABLE+13]=512*8;
-[PROCESS_TABLE+14]=PTBR;
+[PROCESS_TABLE+14]=PAGE_TABLE_BASE;
 [PROCESS_TABLE+15]=10;
 
 
-//Declare PAGE TABLE for INIT
- PTBR = PAGE_TABLE_BASE + 20;
- PTLR = 10;
- 
- 
-//Populate PAGE TABLE
-//Library
-[PTBR+0] = 63;
-[PTBR+1] = "0100";
-[PTBR+2] = 64;
-[PTBR+3] = "0100";
 
-//Heap
-[PTBR+4] = 78;
-[PTBR+5] = "0110";
-[PTBR+6] = 79;
-[PTBR+7] = "0110";
-
-//Code
-[PTBR+8] = 65;
-[PTBR+9] = "0100";
-[PTBR+10] = 66;
-[PTBR+11] = "0100";
-[PTBR+12] = -1;
-[PTBR+13] = "0000";
-[PTBR+14] = -1;
-[PTBR+15] = "0000";
-
-//Stack
-[PTBR+16] = 76;
-[PTBR+17] = "0110";
-[PTBR+18] = 77;
-[PTBR+19] = "0110";
-
-//Populate Process table
-[PROCESS_TABLE+16+1]=1;
-[PROCESS_TABLE+16+4]=RUNNING;
-[PROCESS_TABLE+16+11]=80;
-[PROCESS_TABLE+16+12]=0;
-[PROCESS_TABLE+16+13]=8*512;
-[PROCESS_TABLE+16+14]=PTBR;
-[PROCESS_TABLE+16+15]=10;
 
 //Populate System status table
-[SYSTEM_STATUS_TABLE + 1] = 1;
+[SYSTEM_STATUS_TABLE + 1] = 0;
 
 
 
-//Set Stack Pointer and value at address to zero for setting IP
-[76*512] = [65 * 512 + 1];
+
 SP = 8*512;
 [81*512]=[69*512+1];
 
