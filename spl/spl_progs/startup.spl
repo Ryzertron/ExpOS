@@ -1,3 +1,7 @@
+//Load Idle
+loadi(69,11);
+loadi(70,12);
+
 //load BOOT
 loadi(54,67);
 loadi(55,68);
@@ -10,9 +14,9 @@ PTBR=PAGE_TABLE_BASE; //as PID of idle process is 0
 PTLR = 10;
 
 //Library
-[PAGE_TABLE_BASE+0] = -1;
+[PAGE_TABLE_BASE+0] = 63;
 [PAGE_TABLE_BASE+1] = "0000";
-[PAGE_TABLE_BASE+2] = -1;
+[PAGE_TABLE_BASE+2] = 64;
 [PAGE_TABLE_BASE+3] = "0000";
 
 //Heap

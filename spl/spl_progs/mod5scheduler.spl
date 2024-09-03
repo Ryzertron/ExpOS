@@ -1,0 +1,49 @@
+//get pid of process which was set to READY
+alias currentPID R0;
+currentPID = [SYSTEM_STATUS_TABLE+1];
+
+alias process_table_entry R1;
+process_table_entry = PROCESS_TABLE + currentPID * 16;
+multipush(BP);
+
+//save KPTR PTBR PTLR to Process table 
+[process_table_entry + 12] = SP % 512;
+[process_table_entry + 14] = PTBR;
+[process_table_entry + 15] = PTLR;
+
+alias pid R2;
+pid = (currentPID+1)%16;
+
+while(pid != currentPID) do
+	process_table_entry = PROCESS_TABLE + pid * 16;	
+	if ([process_table_entry + 4] == READY || [process_table_entry + 4] == CREATED) then
+		SP = [process_table_entry + 11]*512 + [process_table_entry + 12];
+		
+		PTBR = [process_table_entry + 14];
+		PTLR = [process_table_entry + 15];
+		[SYSTEM_STATUS_TABLE + 1] = [process_table_entry + 1];
+		if ([process_table_entry + 4] == CREATED) then
+			SP = [process_table_entry + 13];
+			[process_table_entry + 4] = RUNNING;			
+			[process_table_entry + 9] = 0;
+			ireturn;
+		endif;
+		[process_table_entry + 4] = RUNNING;
+		multipop(BP);
+		return;
+	endif;
+	pid = (pid+1) % 16;
+endwhile;
+process_table_entry = PROCESS_TABLE;
+SP = [process_table_entry + 11]*512 + [process_table_entry + 12];
+PTBR = [process_table_entry + 14];
+PTLR = [process_table_entry + 15];
+[SYSTEM_STATUS_TABLE + 1] = 0;
+[process_table_entry + 4] = RUNNING;
+multipop(BP);
+return;
+
+
+
+	
+		
