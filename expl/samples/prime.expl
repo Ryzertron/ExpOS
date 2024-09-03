@@ -1,0 +1,31 @@
+int main()
+{
+	decl
+		int temp, num, i, isPrime,limit;
+		str p;
+	enddecl
+	begin
+		p = "Prime:";
+		num = 2;  // Start from the first prime number
+		while (num <= 100) do
+		     isPrime = 1;  // Assume the number is prime
+		     i = 2;
+		     limit = num/2;
+		     while(i <= limit) do
+		     	temp = num%i;
+		     	if (temp == 0) then
+		     		isPrime = 0;
+		     	endif;
+		     	i = i + 1;
+		     endwhile;
+		     if (isPrime == 1) then
+		    		temp = exposcall("Write", -2, p);
+		        temp = exposcall("Write", -2, num);  // Print the prime number
+		     endif;
+		     
+		     num = num + 1;  // Check the next number
+		endwhile;
+		return 0;
+	end
+}
+

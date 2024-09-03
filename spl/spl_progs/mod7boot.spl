@@ -1,3 +1,6 @@
+//Load Prime
+loadi(89,70);
+
 //Load Exec
 loadi(83,69);
 
@@ -108,14 +111,54 @@ loadi(3, 16);
 [PROCESS_TABLE + 16*2 + 14] = PAGE_TABLE_BASE + 40;
 [PROCESS_TABLE + 16*2 + 15] = 10;
 
+//For Prime
+//Library
+[PAGE_TABLE_BASE + 60 +0] = 63;
+[PAGE_TABLE_BASE + 60 +1] = "0100";
+[PAGE_TABLE_BASE + 60 +2] = 64;
+[PAGE_TABLE_BASE + 60 +3] = "0100";
+
+
+//Heap
+[PAGE_TABLE_BASE + 60 +4] = 90;
+[PAGE_TABLE_BASE + 60 +5] = "0110";
+[PAGE_TABLE_BASE + 60 +6] = 91;
+[PAGE_TABLE_BASE + 60 +7] = "0110";
+
+//Code
+[PAGE_TABLE_BASE + 60 +8] = 89;
+[PAGE_TABLE_BASE + 60 +9] = "0100";
+[PAGE_TABLE_BASE + 60 +10] = -1;
+[PAGE_TABLE_BASE + 60 +11] = "0000";
+[PAGE_TABLE_BASE + 60 +12] = -1;
+[PAGE_TABLE_BASE + 60 +13] = "0000";
+[PAGE_TABLE_BASE + 60 +14] = -1;
+[PAGE_TABLE_BASE + 60 +15] = "0000";
+
+//Stack
+[PAGE_TABLE_BASE + 60 +16] = 92;
+[PAGE_TABLE_BASE + 60 +17] = "0110";
+[PAGE_TABLE_BASE + 60 +18] = 93;
+[PAGE_TABLE_BASE + 60 +19] = "0110";
+
+//Process Table entry
+[PROCESS_TABLE + 16*3 + 1] = 3;
+[PROCESS_TABLE + 16*3 + 4] = CREATED;
+[PROCESS_TABLE + 16*3 + 11] = 94;
+[PROCESS_TABLE + 16*3 + 12] = 0; 
+[PROCESS_TABLE + 16*3 + 13] = 8*512; 
+[PROCESS_TABLE + 16*3 + 14] = PAGE_TABLE_BASE + 60;
+[PROCESS_TABLE + 16*3 + 15] = 10;
+
 //Set Stack Pointer and value at address to zero for setting IP
 //init
 [76*512] = [65 * 512 + 1];
 //even
 [86 * 512] = [83 * 512 + 1];
+//Prime
+[92*512] = [89 * 512 + 1];
 
 //Setting rest to TERMINATED
-[PROCESS_TABLE + 16*3 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*4 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*5 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*6 + 4] = TERMINATED;
