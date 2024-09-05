@@ -1,13 +1,21 @@
-//Load Exec
-loadi(83,69);
+//Load Resource Manager Module 0
+loadi(40,53);
+loadi(41,54);
 
-//Load scheduler
+//Load Device manager Module 4
+loadi(48,61);
+loadi(49,62);
+
+//Load scheduler Module 5
 loadi(50,63);
 loadi(51,64);
 
 //Load INIT PROGRAM
 loadi(65,7);
 loadi(66,8);
+
+//Load Exec
+loadi(83,69);
 
 //Load Library
 loadi(63,13);
@@ -113,6 +121,9 @@ loadi(3, 16);
 [76*512] = [65 * 512 + 1];
 //even
 [86 * 512] = [83 * 512 + 1];
+
+//Setting Status of terminal as free
+[TERMINAL_STATUS_TABLE] = 0;
 
 //Setting rest to TERMINATED
 [PROCESS_TABLE + 16*3 + 4] = TERMINATED;

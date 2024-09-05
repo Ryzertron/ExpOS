@@ -50,14 +50,8 @@ PTLR = 10;
 [PROCESS_TABLE+14]=PAGE_TABLE_BASE;
 [PROCESS_TABLE+15]=10;
 
-
-
-
 //Populate System status table
 [SYSTEM_STATUS_TABLE + 1] = 0;
-
-
-
 
 SP = 8*512;
 [81*512]=[69*512+1];
