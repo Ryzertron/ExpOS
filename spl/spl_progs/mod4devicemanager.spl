@@ -1,0 +1,22 @@
+alias fnumber R1;
+alias currentpid R2;
+
+//Terminal Write Function
+if (fnumber == 3) then
+	//calling Acquire Terminal
+	multipush(R0,R1,R2,R3);
+	fnumber = 8;
+	//currentpid already contains PID so no need to update
+	call RESOURCE_MANAGER;
+	multipop(R0,R1,R2,R3);
+	alias word R3;
+	print (word);
+	multipush(R0,R1,R2,R3,R4);
+	fnumber = 9;
+	//currentpid already contains PID so no need to update
+	call RESOURCE_MANAGER;
+	multipop(R0,R1,R2,R3,R4);
+	return;
+endif;
+return;
+	

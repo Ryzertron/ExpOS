@@ -28,7 +28,18 @@ then
 else
 	alias word R5;
 	word = [[PTBR + 2 * ((userSP - 3) / 512)] * 512 + ((userSP - 3) % 512)];
-	print word;
+	
+	//Calling Terminal Write function
+	multipush(R0,R1,R2,R3,R4,R5,R6,R7);
+	alias fnumber R1;
+	alias currentpid R2;
+	alias characters R3;
+	fnumber = 3;
+	currentpid = [SYSTEM_STATUS_TABLE + 1];
+	characters = word;
+	call DEVICE_MANAGER;
+	multipop(R0,R1,R2,R3,R4,R5,R6,R7);
+	
 	alias physicalAddrRetVal R6;
 	physicalAddrRetVal = ([PTBR + 2 * (userSP - 1)/ 512] * 512) + ((userSP - 1) % 512);
 	[physicalAddrRetVal] = 0;
