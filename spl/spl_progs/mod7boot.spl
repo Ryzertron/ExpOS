@@ -25,6 +25,14 @@ loadi(64,14);
 loadi(4, 17);
 loadi(5, 18);
 
+//Load Console Interrupt
+loadi(8,21);
+loadi(9,22);
+
+//Load INT 6
+loadi(14,27);
+loadi(15,28);
+
 //Load INT 7
 loadi(16,29);
 loadi(17,30);
@@ -75,57 +83,15 @@ loadi(3, 16);
 [PROCESS_TABLE+16+14]=PAGE_TABLE_BASE + 20;
 [PROCESS_TABLE+16+15]=10;
 
-
-//PT for Exec Code Even numbers
-
-//Library
-[PAGE_TABLE_BASE + 40 +0] = 63;
-[PAGE_TABLE_BASE + 40 +1] = "0100";
-[PAGE_TABLE_BASE + 40 +2] = 64;
-[PAGE_TABLE_BASE + 40 +3] = "0100";
-
-
-//Heap
-[PAGE_TABLE_BASE + 40 +4] = 84;
-[PAGE_TABLE_BASE + 40 +5] = "0110";
-[PAGE_TABLE_BASE + 40 +6] = 85;
-[PAGE_TABLE_BASE + 40 +7] = "0110";
-
-//Code
-[PAGE_TABLE_BASE + 40 +8] = 83;
-[PAGE_TABLE_BASE + 40 +9] = "0100";
-[PAGE_TABLE_BASE + 40 +10] = -1;
-[PAGE_TABLE_BASE + 40 +11] = "0000";
-[PAGE_TABLE_BASE + 40 +12] = -1;
-[PAGE_TABLE_BASE + 40 +13] = "0000";
-[PAGE_TABLE_BASE + 40 +14] = -1;
-[PAGE_TABLE_BASE + 40 +15] = "0000";
-
-//Stack
-[PAGE_TABLE_BASE + 40 +16] = 86;
-[PAGE_TABLE_BASE + 40 +17] = "0110";
-[PAGE_TABLE_BASE + 40 +18] = 87;
-[PAGE_TABLE_BASE + 40 +19] = "0110";
-
-//Process Table entry
-[PROCESS_TABLE + 16*2 + 1] = 2;
-[PROCESS_TABLE + 16*2 + 4] = CREATED;
-[PROCESS_TABLE + 16*2 + 11] = 88;
-[PROCESS_TABLE + 16*2 + 12] = 0; 
-[PROCESS_TABLE + 16*2 + 13] = 8*512; 
-[PROCESS_TABLE + 16*2 + 14] = PAGE_TABLE_BASE + 40;
-[PROCESS_TABLE + 16*2 + 15] = 10;
-
 //Set Stack Pointer and value at address to zero for setting IP
 //init
 [76*512] = [65 * 512 + 1];
-//even
-[86 * 512] = [83 * 512 + 1];
 
 //Setting Status of terminal as free
 [TERMINAL_STATUS_TABLE] = 0;
 
 //Setting rest to TERMINATED
+[PROCESS_TABLE + 16*2 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*3 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*4 + 4] = TERMINATED;
 [PROCESS_TABLE + 16*5 + 4] = TERMINATED;

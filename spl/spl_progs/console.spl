@@ -1,0 +1,26 @@
+//Saving user SP and switch to Kernel SP
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+//save user ctx to kernel stack
+backup;
+
+alias currentpid R0;
+currentpid = [TERMINAL_STATUS_TABLE + 1];
+
+[PROCESS_TABLE + currentpid * 16 + 8] = P0;
+
+multipush(R0,R1);
+
+// Arguments for Resource manager
+R1 = 9;
+R2 = [TERMINAL_STATUS_TABLE + 1];
+
+call RESOURCE_MANAGER;
+
+multipop(R0,R1);
+
+restore;
+
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+ireturn;

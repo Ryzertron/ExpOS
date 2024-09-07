@@ -11,10 +11,14 @@ cd $HOME/myexpos/spl
 ./spl spl_progs/timer.spl
 ./spl spl_progs/mod0resourcemanager.spl
 ./spl spl_progs/mod4devicemanager.spl
+./spl spl_progs/console.spl
+./spl spl_progs/int6.spl
 cd $HOME/myexpos/xfs-interface
 ./xfs-interface << EOF
 load --idle ../expl/samples/idle.xsm
 load --int=timer ../spl/spl_progs/timer.xsm
+load --int=console ../spl/spl_progs/console.xsm
+load --int=6 ../spl/spl_progs/int6.xsm
 load --int=7 ../spl/spl_progs/int7.xsm
 load --int=10 ../spl/spl_progs/int10.xsm
 load --module 0 ../spl/spl_progs/mod0resourcemanager.xsm

@@ -18,5 +18,34 @@ if (fnumber == 3) then
 	multipop(R0,R1,R2,R3,R4);
 	return;
 endif;
+
+//Terminal Read
+if (fnumber == 4) then
+	//calling Acquire Terminal
+	multipush(R0,R1,R2,R3);
+	fnumber = 8;
+	//currentpid already contains PID so no need to update
+	
+	call RESOURCE_MANAGER;
+	multipop(R0,R1,R2,R3);
+	read;
+	[PROCESS_TABLE + currentpid*16 + 4] = WAIT_TERMINAL;
+	multipush(R0,R1,R2,R3);
+	call SCHEDULER;
+	multipop(R0,R1,R2,R3);
+	
+	//R3 contains address of the variable as argument
+	alias VirAddr R3;
+	alias PhyAddr R4;
+	//convert logical address to Physical address 
+	PhyAddr = ([PTBR + 2 * (VirAddr/ 512)] * 512) + (VirAddr % 512);
+	
+	//Copy Input buffer from process table to Variable location
+	[PhyAddr] = [PROCESS_TABLE + currentpid*16 + 8];
+	return;
+endif;
+
+
 return;
+	
 	
