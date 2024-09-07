@@ -1,0 +1,37 @@
+decl 
+    int n,arr[50],i,j,swap,temp;
+enddecl
+int main()
+{
+begin
+    temp = exposcall ( "Read" , -1, n );
+    i=0;
+    while(i<n) do
+        temp = exposcall ( "Read" , -1, arr[i] );
+        i = i+1;
+    endwhile;
+
+    i=0;
+    while(i<n) do
+        j=i;
+        while(j<n) do
+            if(arr[i]>arr[j]) then
+                swap = arr[i];
+                arr[i] = arr[j];
+                arr[j] = swap;
+            endif;
+            j = j + 1;
+        endwhile;
+    i = i+1;
+    endwhile;
+	
+	temp = exposcall("Write", -2, "Output:");
+    i=0;
+    while(i<n) do
+        temp = exposcall ( "Write" , -2, arr[i] );
+        i = i+1;
+    endwhile;
+
+    return 0;
+end
+}
