@@ -1,3 +1,4 @@
+breakpoint;
 //set Mode Flag to syscall 7
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 7;
 
@@ -48,4 +49,5 @@ endif;
 
 SP = userSP;
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+breakpoint;
 ireturn;
