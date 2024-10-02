@@ -1,0 +1,144 @@
+//set Mode Flag to syscall 9
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 9;
+
+alias userSP R0;
+userSP = SP;
+
+//save user SP and change SP value
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+alias arg R1;
+arg = [([PTBR + 2*((userSP - 4)/512)] * 512) + ((userSP-4) %512)];
+
+//Checking if arg present in Inode Table
+
+alias index R2;
+index = 0;
+
+while(index < MAX_FILE_NUM )do
+    if ( [ INODE_TABLE + (index * 16) + 1 ] == arg )then
+        break;
+    endif;
+    index = index + 1;
+endwhile;
+
+//If no such file exists or not in XEXE format 
+if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) + 0 ] != EXEC )then
+    [([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512)] = -1;
+    
+    // Reset Mode Flag
+    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+    //Reset Stack pointer
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    ireturn;
+endif;
+
+//calling exit process
+
+multipush(R0,R1,R2);
+
+R1 = 3;
+R2 = [SYSTEM_STATUS_TABLE + 1];
+call PROCESS_MANAGER;
+
+multipop(R0,R1,R2);
+
+//Reclaiming UAPage
+alias UAPage R3;
+UAPage = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11];
+[MEMORY_FREE_LIST + UAPage] = [MEMORY_FREE_LIST + UAPage] + 1;
+[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+
+//New Kernel Stack initialised from the bottom without offset
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+//STATE field set
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 4] = RUNNING;
+
+//Inode index set
+[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 7] = index;
+
+//Allocating Pages
+
+PTBR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 14];
+PTLR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 15];
+
+//Library
+[PTBR+0] = 63;
+[PTBR+1] = "0100";
+[PTBR+2] = 64;
+[PTBR+3] = "0100";
+
+//Heap 2 pages
+multipush(R0,R1,R2,R3);
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR+4] = R0;
+[PTBR+5] = "0110";
+
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR+6] = R0;
+[PTBR+7] = "0110";
+
+//Stack 2 pages
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR + 16] = R0;
+[PTBR + 17] = "0110";
+
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR + 18] = R0;
+[PTBR + 19] = "0110";
+
+multipop(R0,R1,R2,R3);
+
+//Code
+[PTBR+8]  = -1;
+[PTBR+9]  = "0000";
+[PTBR+10] = -1;
+[PTBR+11] = "0000";
+[PTBR+12] = -1;
+[PTBR+13] = "0000";
+[PTBR+14] = -1;
+[PTBR+15] = "0000";
+
+alias countOfPages R4;
+countOfPages = 0;
+R5 = 8;
+while(R5 < 12)do
+    if ( [ INODE_TABLE + (index * 16) + R5 ] != -1 )then 
+        countOfPages = countOfPages + 1;
+    endif;
+    R5 = R5 + 1;
+endwhile;
+
+//Free Page allocation
+R5 = 0;
+while( R5 < countOfPages )do
+    multipush(R0,R1,R2,R3,R4,R5);
+    R1 = 1;
+    call MEMORY_MANAGER;
+    [PTBR + 8 + ( 2 * R5 ) ] = R0;
+    multipop(R0,R1,R2,R3,R4,R5);
+    [PTBR + 8 + ( 2 * R5 ) + 1 ] = "0100";
+    R5 = R5 + 1;
+endwhile;
+
+//Loading code blocks
+R5 = 0;
+while( R5 != countOfPages )do   
+    loadi([PTBR + 8 + ( 2 * R9 ) ],[ INODE_TABLE + ( index * 16 ) + 8 + R5 ]);
+    R5 = R5 + 1;
+endwhile;
+
+[[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1];
+
+// Reset Mode Flag
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+
+SP = 8 * 512;
+ireturn;

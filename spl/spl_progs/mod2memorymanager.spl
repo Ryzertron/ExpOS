@@ -1,0 +1,46 @@
+//-------------MEMORY MANAGER----------------
+
+alias fnumber R1;
+alias pgnumber R2;
+alias newpage R3;
+
+//Get Free Page
+if (fnumber == 1)then
+    [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] + 1;
+    while([SYSTEM_STATUS_TABLE + 2] == 0)do
+        [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 4] = WAIT_MEM;
+        call SCHEDULER;
+    endwhile;
+    [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+
+    newpage = 0;
+    while( [MEMORY_FREE_LIST + newpage ] != 0 &&  newpage < NUM_MEM_PAGES )do
+        newpage = newpage + 1;
+    endwhile;
+
+    [MEMORY_FREE_LIST + newpage ] = 1;
+
+    R0 = newpage;
+    return;
+endif;
+
+//Release Page Function
+if (fnumber == 2) then
+	[MEMORY_FREE_LIST + pgnumber] = 	[MEMORY_FREE_LIST + pgnumber] - 1;
+	
+	if ([MEMORY_FREE_LIST + pgnumber] == 0) then
+		[SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;
+	else
+		return;
+	endif;
+	
+	alias cpid R4;
+	cpid = 0;
+	while (cpid < 16) do
+		if ([PROCESS_TABLE + cpid * 16 + 4] == WAIT_MEM) then
+			[PROCESS_TABLE + cpid *16 + 4] = READY;
+		endif;
+	endwhile;
+	return;
+endif;

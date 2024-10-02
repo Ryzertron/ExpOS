@@ -2,6 +2,14 @@
 loadi(40,53);
 loadi(41,54);
 
+//Load Process Manager Module 1
+loadi(42,55);
+loadi(43,56);
+
+//Load Memory Manager Module 2
+loadi(44,57);
+loadi(45,58);
+
 //Load Device manager Module 4
 loadi(48,61);
 loadi(49,62);
@@ -44,6 +52,22 @@ loadi(23,36);
 //LOAD Exhandler
 loadi(2, 15);
 loadi(3, 16);
+
+//Initialize Memory Free List
+
+alias i R0;
+i=0;
+while(i!=128)do
+    if (i < 83) then
+        [MEMORY_FREE_LIST+i]=1;
+    else 
+        [MEMORY_FREE_LIST+i]=0;
+    endif;
+    i=i+1;
+endwhile;
+
+[SYSTEM_STATUS_TABLE + 2] = 45;
+[SYSTEM_STATUS_TABLE + 3] = 0;
 
 //Populate PAGE TABLE for INIT
 //Library
