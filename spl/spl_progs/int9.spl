@@ -1,8 +1,9 @@
-//set Mode Flag to syscall 9
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 9;
 
 alias userSP R0;
 userSP = SP;
+
+//set Mode Flag to syscall 9
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 9;
 
 //save user SP and change SP value
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
@@ -24,7 +25,7 @@ while(index < MAX_FILE_NUM )do
 endwhile;
 
 //If no such file exists or not in XEXE format 
-if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) + 0 ] != EXEC )then
+if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) ] != EXEC )then
     [([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512)] = -1;
     
     // Reset Mode Flag
@@ -34,7 +35,6 @@ if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) + 0 ] != EXEC )then
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
     ireturn;
 endif;
-
 //calling exit process
 
 multipush(R0,R1,R2);
@@ -42,7 +42,6 @@ multipush(R0,R1,R2);
 R1 = 3;
 R2 = [SYSTEM_STATUS_TABLE + 1];
 call PROCESS_MANAGER;
-
 multipop(R0,R1,R2);
 
 //Reclaiming UAPage

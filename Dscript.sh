@@ -1,6 +1,6 @@
 cd $HOME/myexpos/expl
 ./expl samples/idle.expl
-./expl samples/init.expl
+./expl samples/shell.expl
 ./expl samples/even.expl
 cd $HOME/myexpos/spl
 ./spl spl_progs/startup.spl
@@ -48,7 +48,7 @@ load --module 5 ../spl/spl_progs/mod5scheduler.xsm
 load --module 7 ../spl/spl_progs/mod7boot.xsm
 load --library ../expl/library.lib
 load --os ../spl/spl_progs/startup.xsm
-load --init ../expl/samples/init.xsm
+load --init ../expl/samples/shell.xsm
 exit
 EOF
 
