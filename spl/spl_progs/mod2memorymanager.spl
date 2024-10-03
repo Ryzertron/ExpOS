@@ -41,6 +41,7 @@ if (fnumber == 2) then
 		if ([PROCESS_TABLE + cpid * 16 + 4] == WAIT_MEM) then
 			[PROCESS_TABLE + cpid *16 + 4] = READY;
 		endif;
+		cpid = cpid + 1;
 	endwhile;
 	return;
 endif;

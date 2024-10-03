@@ -45,6 +45,10 @@ loadi(15,28);
 loadi(16,29);
 loadi(17,30);
 
+//Load INT 9
+loadi(20,33);
+loadi(21,34);
+
 //LOAD INT10
 loadi(22,35);
 loadi(23,36);
@@ -52,6 +56,10 @@ loadi(23,36);
 //LOAD Exhandler
 loadi(2, 15);
 loadi(3, 16);
+
+//Load Inode Table
+loadi(59,3);
+loadi(60,4);
 
 //Initialize Memory Free List
 
