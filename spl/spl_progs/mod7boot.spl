@@ -33,6 +33,10 @@ loadi(64,14);
 loadi(4, 17);
 loadi(5, 18);
 
+//Disk Interrupt
+loadi(6, 19);
+loadi(7, 20);
+
 //Load Console Interrupt
 loadi(8,21);
 loadi(9,22);
@@ -115,12 +119,24 @@ endwhile;
 [PROCESS_TABLE+16+14]=PAGE_TABLE_BASE + 20;
 [PROCESS_TABLE+16+15]=10;
 
+//Per Process table for INIT
+alias perprocess R1;
+perprocess = 80*512 + RESOURCE_TABLE_OFFSET;
+while ( perprocess < 81*512 )do
+    [perprocess] = -1;
+    perprocess = perprocess + 2;
+endwhile;
+
+
 //Set Stack Pointer and value at address to zero for setting IP
 //init
 [76*512] = [65 * 512 + 1];
 
 //Setting Status of terminal as free
 [TERMINAL_STATUS_TABLE] = 0;
+
+//Disk Status Table
+[DISK_STATUS_TABLE + 0 ] = 0;
 
 //Setting rest to TERMINATED
 [PROCESS_TABLE + 16*2 + 4] = TERMINATED;

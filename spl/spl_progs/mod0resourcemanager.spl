@@ -1,6 +1,22 @@
 alias fnumber R1;
 alias currentpid R2;
 
+//Acquire Disk
+if ( fnumber == 3 )then
+    //Waiting for Disk to be released
+    while( [DISK_STATUS_TABLE + 0] == 1 )do
+        [PROCESS_TABLE + ( currentpid * 16) + 4] = WAIT_DISK;
+        multipush(R1,R2,R3);
+        call SCHEDULER;
+        multipop(R1,R2,R3);
+    endwhile;
+
+    //Setting new process to Disk
+    [DISK_STATUS_TABLE + 0] = 1;
+    [DISK_STATUS_TABLE + 4] = currentpid;
+	return;
+endif;
+
 
 //Acquire Terminal Function
 if (fnumber == 8) then

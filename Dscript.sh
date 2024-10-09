@@ -2,6 +2,7 @@ cd $HOME/myexpos/expl
 ./expl samples/idle.expl
 ./expl samples/shell.expl
 ./expl samples/even.expl
+./expl samples/odd.expl
 cd $HOME/myexpos/spl
 ./spl spl_progs/startup.spl
 echo "------------Compiling Hardware Interrupts"
@@ -33,6 +34,7 @@ echo "INT 10"
 ./spl spl_progs/int10.spl
 cd $HOME/myexpos/xfs-interface
 ./xfs-interface << EOF
+fdisk
 load --idle ../expl/samples/idle.xsm
 load --int=timer ../spl/spl_progs/timer.xsm
 load --int=console ../spl/spl_progs/console.xsm
@@ -49,6 +51,8 @@ load --module 7 ../spl/spl_progs/mod7boot.xsm
 load --library ../expl/library.lib
 load --os ../spl/spl_progs/startup.xsm
 load --init ../expl/samples/shell.xsm
+load --exec ../expl/samples/odd.xsm
+load --exec ../expl/samples/even.xsm
 exit
 EOF
 

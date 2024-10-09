@@ -1,6 +1,35 @@
 alias fnumber R1;
 alias currentpid R2;
 
+//DISK LOAD function
+if (fnumber == 2)then
+
+    alias pgnumber R3;
+    alias blockno R4;
+
+    multipush(R1,R2,R3,R4);
+    fnumber = 3;
+    call RESOURCE_MANAGER;
+    multipop(R1,R2,R3,R4);
+
+    //DISK STATUS TABLE
+    //Load/Store Bit
+    [DISK_STATUS_TABLE + 1] = 0;
+    //PageNo
+    [DISK_STATUS_TABLE + 2] = pgnumber;
+    //BlockNo
+    [DISK_STATUS_TABLE + 3] = blockno;
+
+    load(pagenumber,blockno);
+
+    [PROCESS_TABLE + ( currentpid* 16) + 4] = WAIT_DISK;
+
+    multipush(R1,R2,R3,R4);
+    call SCHEDULER;
+    multipop(R1,R2,R3,R4);
+	return;
+endif;
+
 //Terminal Write Function
 if (fnumber == 3) then
 	//calling Acquire Terminal
