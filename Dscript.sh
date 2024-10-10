@@ -10,6 +10,8 @@ echo "Console"
 ./spl spl_progs/console.spl
 echo "Timer"
 ./spl spl_progs/timer.spl
+echo "Disk"
+./spl spl_progs/disk.spl
 echo "------------------------Compiling Modules"
 echo "Resource Manager"
 ./spl spl_progs/mod0resourcemanager.spl
@@ -37,6 +39,7 @@ cd $HOME/myexpos/xfs-interface
 fdisk
 load --idle ../expl/samples/idle.xsm
 load --int=timer ../spl/spl_progs/timer.xsm
+load --int=disk ../spl/spl_progs/disk.xsm
 load --int=console ../spl/spl_progs/console.xsm
 load --int=6 ../spl/spl_progs/int6.xsm
 load --int=7 ../spl/spl_progs/int7.xsm

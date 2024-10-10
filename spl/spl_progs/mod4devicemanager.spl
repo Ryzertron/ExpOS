@@ -20,7 +20,7 @@ if (fnumber == 2)then
     //BlockNo
     [DISK_STATUS_TABLE + 3] = blockno;
 
-    load(pagenumber,blockno);
+    load(pgnumber,blockno);
 
     [PROCESS_TABLE + ( currentpid* 16) + 4] = WAIT_DISK;
 
