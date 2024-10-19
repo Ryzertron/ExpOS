@@ -4,7 +4,10 @@ cd $HOME/myexpos/expl
 ./expl samples/even.expl
 ./expl samples/odd.expl
 cd $HOME/myexpos/spl
+echo "------------Startup Code"
 ./spl spl_progs/startup.spl
+echo "------------Compiling Exception Handler"
+./spl spl_progs/exhandler.spl
 echo "------------Compiling Hardware Interrupts"
 echo "Console"
 ./spl spl_progs/console.spl
@@ -38,6 +41,7 @@ cd $HOME/myexpos/xfs-interface
 ./xfs-interface << EOF
 fdisk
 load --idle ../expl/samples/idle.xsm
+load --exhandler ../spl/spl_progs/exhandler.xsm
 load --int=timer ../spl/spl_progs/timer.xsm
 load --int=disk ../spl/spl_progs/disk.xsm
 load --int=console ../spl/spl_progs/console.xsm

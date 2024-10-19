@@ -14,15 +14,18 @@ arg = [([PTBR + 2*((userSP - 4)/512)] * 512) + ((userSP-4) %512)];
 
 //Checking if arg present in Inode Table
 
-alias index R2;
-index = 0;
+alias incrementer R2;
+incrementer = 0;
 
-while(index < MAX_FILE_NUM )do
-    if ( [ INODE_TABLE + (index * 16) + 1 ] == arg )then
+while(incrementer < MAX_FILE_NUM )do
+    if ( [ INODE_TABLE + (incrementer * 16) + 1 ] == arg )then
         break;
     endif;
-    index = index + 1;
+    incrementer = incrementer + 1;
 endwhile;
+
+alias index R9;
+index = incrementer;
 
 //If no such file exists or not in XEXE format 
 if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) ] != EXEC )then
@@ -78,19 +81,15 @@ PTLR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 15];
 [PTBR+2] = 64;
 [PTBR+3] = "0100";
 
-//Heap 2 pages
-multipush(R0,R1,R2,R3);
-R1 = 1;
-call MEMORY_MANAGER;
-[PTBR+4] = R0;
-[PTBR+5] = "0110";
-
-R1 = 1;
-call MEMORY_MANAGER;
-[PTBR+6] = R0;
-[PTBR+7] = "0110";
+//Heap
+[PTBR+4] = -1;
+[PTBR+5] = "0000";
+[PTBR+6] = -1;
+[PTBR+7] = "0000";
 
 //Stack 2 pages
+multipush(R0,R1,R2,R3);
+
 R1 = 1;
 call MEMORY_MANAGER;
 [PTBR + 16] = R0;
@@ -103,9 +102,25 @@ call MEMORY_MANAGER;
 
 multipop(R0,R1,R2,R3);
 
+
+
 //Code
-[PTBR+8]  = -1;
-[PTBR+9]  = "0000";
+//Get Code Page (Assigning First Code Block a memory page)
+
+multipush(R0,R1,R2,R3,R4);
+
+R1 = 5;
+R2 = [ INODE_TABLE + ( index * 16 ) + 8 ];
+R3 = [SYSTEM_STATUS_TABLE + 1];
+
+call MEMORY_MANAGER;
+
+[ PTBR + 8 ] = R0;
+[ PTBR + 9 ] = "0100";
+
+multipop(R0,R1,R2,R3,R4);
+
+
 [PTBR+10] = -1;
 [PTBR+11] = "0000";
 [PTBR+12] = -1;
@@ -113,43 +128,24 @@ multipop(R0,R1,R2,R3);
 [PTBR+14] = -1;
 [PTBR+15] = "0000";
 
-alias countOfPages R4;
-countOfPages = 0;
-R5 = 8;
-while(R5 < 12)do
-    if ( [ INODE_TABLE + (index * 16) + R5 ] != -1 )then 
-        countOfPages = countOfPages + 1;
-    endif;
-    R5 = R5 + 1;
+
+//Initialising Disk Map Table
+
+alias counter R4;
+alias currentPID R5;
+currentPID = [SYSTEM_STATUS_TABLE + 1];
+counter=0;
+while(counter < 10)do
+    [ DISK_MAP_TABLE + currentPID*10 + counter] = -1;
+    counter = counter + 1;
 endwhile;
 
-//Free Page allocation
-R5 = 0;
-while( R5 < countOfPages )do
-    multipush(R0,R1,R2,R3,R4,R5);
-    R1 = 1;
-    call MEMORY_MANAGER;
-    [PTBR + 8 + ( 2 * R5 ) ] = R0;
-    multipop(R0,R1,R2,R3,R4,R5);
-    [PTBR + 8 + ( 2 * R5 ) + 1 ] = "0100";
-    R5 = R5 + 1;
-endwhile;
+[DISK_MAP_TABLE + currentPID*10 + 4] =  [INODE_TABLE + ( index * 16 ) + 8];
+[DISK_MAP_TABLE + currentPID*10 + 5] =  [INODE_TABLE + ( index * 16 ) + 9];
+[DISK_MAP_TABLE + currentPID*10 + 6] =  [INODE_TABLE + ( index * 16 ) + 10];
+[DISK_MAP_TABLE + currentPID*10 + 7] =  [INODE_TABLE + ( index * 16 ) + 11];
 
-//Loading code blocks
-R5 = 0;
-while( R5 != countOfPages )do   
 
-    multipush(R0,R1,R2,R3,R4,R5);
-    R4 = [ INODE_TABLE + ( index * 16 ) + 8 + R5 ];
-    R1 = 2;
-    R2 = [SYSTEM_STATUS_TABLE + 1];
-    R3 = [PTBR + 8 + ( 2 * R5 ) ];
-    
-    call DEVICE_MANAGER;
-    multipop(R0,R1,R2,R3,R4,R5);
-
-    R5 = R5 + 1;
-endwhile;
 
 [[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1];
 

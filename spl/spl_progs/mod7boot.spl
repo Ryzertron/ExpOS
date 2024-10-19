@@ -29,6 +29,10 @@ loadi(83,69);
 loadi(63,13);
 loadi(64,14);
 
+//Exhandler
+loadi(2, 15);
+loadi(3, 16);
+
 //Load Timer Interrupt
 loadi(4, 17);
 loadi(5, 18);
@@ -57,13 +61,13 @@ loadi(21,34);
 loadi(22,35);
 loadi(23,36);
 
-//LOAD Exhandler
-loadi(2, 15);
-loadi(3, 16);
-
 //Load Inode Table
 loadi(59,3);
 loadi(60,4);
+
+//Disk Free LIst
+loadi(61,2);
+
 
 //Initialize Memory Free List
 
@@ -126,6 +130,18 @@ while ( perprocess < 81*512 )do
     [perprocess] = -1;
     perprocess = perprocess + 2;
 endwhile;
+
+//Disk Map Table for INIT Process
+[ DISK_MAP_TABLE + 10 + 0] = -1;
+[ DISK_MAP_TABLE + 10 + 1] = -1;
+[ DISK_MAP_TABLE + 10 + 2] = -1;
+[ DISK_MAP_TABLE + 10 + 3] = -1;
+[ DISK_MAP_TABLE + 10 + 4] = 7;
+[ DISK_MAP_TABLE + 10 + 5] = 8;
+[ DISK_MAP_TABLE + 10 + 6] = -1;
+[ DISK_MAP_TABLE + 10 + 7] = -1;
+[ DISK_MAP_TABLE + 10 + 8] = -1;
+[ DISK_MAP_TABLE + 10 + 9] = -1;
 
 
 //Set Stack Pointer and value at address to zero for setting IP
