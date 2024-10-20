@@ -53,6 +53,10 @@ loadi(15,28);
 loadi(16,29);
 loadi(17,30);
 
+//Load INT 8
+loadi(18,31);
+loadi(19,32);
+
 //Load INT 9
 loadi(20,33);
 loadi(21,34);

@@ -33,6 +33,8 @@ echo "INT 6"
 ./spl spl_progs/int6.spl
 echo "INT 7"
 ./spl spl_progs/int7.spl
+echo "INT 8"
+./spl spl_progs/int8.spl
 echo "INT 9"
 ./spl spl_progs/int9.spl
 echo "INT 10"
@@ -47,6 +49,7 @@ load --int=disk ../spl/spl_progs/disk.xsm
 load --int=console ../spl/spl_progs/console.xsm
 load --int=6 ../spl/spl_progs/int6.xsm
 load --int=7 ../spl/spl_progs/int7.xsm
+load --int=8 ../spl/spl_progs/int8.xsm
 load --int=9 ../spl/spl_progs/int9.xsm
 load --int=10 ../spl/spl_progs/int10.xsm
 load --module 0 ../spl/spl_progs/mod0resourcemanager.xsm

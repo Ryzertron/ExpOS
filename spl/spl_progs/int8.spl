@@ -1,0 +1,169 @@
+//Set MODE Flag to 8
+alias ppid R9;
+ppid = [SYSTEM_STATUS_TABLE+1];
+[PROCESS_TABLE + ppid * 16 + 9] = 8;
+
+//UPTR set to Stack Ptr
+[PROCESS_TABLE + ( ppid * 16) + 13] = SP;
+
+//UA Page No.
+SP = [PROCESS_TABLE + (ppid * 16) + 11] * 512 - 1;
+
+alias cpid R1;
+alias childPTBR R8;
+
+multipush(R1,R8,R9);
+//Getting new PID
+R1 = 1;
+call PROCESS_MANAGER;
+multipop(R1,R8,R9);
+cpid = R0;
+
+if(cpid == -1) then
+	//Set Return value to -1    
+    alias physicalAddrRetVal R2;
+    physicalAddrRetVal = ([PTBR + 2 * (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) / 512)] * 512) + (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) % 512);
+    [physicalAddrRetVal] = -1;
+
+    // Reset Mode Flag
+    [PROCESS_TABLE + ppid * 16 + 9] = 0;
+
+    SP = [PROCESS_TABLE + ( ppid * 16) + 13];
+
+    ireturn;
+
+endif;
+
+//Allocating Heap if not yet
+if ( [PTBR + 4] == -1 )then
+    multipush(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9);
+    R1 = 1;
+    call MEMORY_MANAGER;
+    [PTBR + 4]  = R0;
+    [PTBR + 5]  = "1110";
+
+    R1 = 1;
+    call MEMORY_MANAGER;
+    [PTBR + 6]  = R0;
+    [PTBR + 7]  = "1110";
+    multipop(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9);
+endif;
+
+childPTBR = PAGE_TABLE_BASE + 20*cpid;
+
+//Stack
+multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+R1 = 1;
+call MEMORY_MANAGER;
+multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+
+[ childPTBR + 16 ] = R0;
+[ childPTBR + 17 ] = "0110";
+
+multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+R1 = 1;
+call MEMORY_MANAGER;
+multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+
+[ childPTBR + 18 ] = R0;
+[ childPTBR + 19 ] = "0110";
+
+//UAPage. 
+multipush(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+R1 = 1;
+call MEMORY_MANAGER;
+multipop(R1,R2,R3,R4,R5,R6,R7,R8,R9);
+
+//UAPage
+[PROCESS_TABLE + 16*cpid + 11] = R0;
+
+//Copying UserID, Swap Flag, Inode Index, UASwapStatus, UPTR from Parent to Child
+[PROCESS_TABLE + 16*cpid + 3]  = [PROCESS_TABLE + 16*ppid + 3]; 
+[PROCESS_TABLE + 16*cpid + 6]  = [PROCESS_TABLE + 16*ppid + 6]; 
+[PROCESS_TABLE + 16*cpid + 7]  = [PROCESS_TABLE + 16*ppid + 7]; 
+[PROCESS_TABLE + 16*cpid + 10] = [PROCESS_TABLE + 16*ppid + 10]; 
+[PROCESS_TABLE + 16*cpid + 13] = [PROCESS_TABLE + 16*ppid + 13]; 
+
+//Setting MODE Flag, KPTR, TICK to 0 
+[PROCESS_TABLE + 16*cpid + 0]  = 0;
+[PROCESS_TABLE + 16*cpid + 9]  = 0;
+[PROCESS_TABLE + 16*cpid + 12] = 0;
+
+
+//Storing Parent PID
+[PROCESS_TABLE + 16*cpid + 2] = ppid;
+//State
+[PROCESS_TABLE + 16*cpid + 4] = CREATED;
+
+alias index R4;
+index=0;
+while(index < 10)do
+    [DISK_MAP_TABLE+cpid*10+index]=[DISK_MAP_TABLE+[SYSTEM_STATUS_TABLE+1]*10+index];
+    index = index + 1;
+endwhile;
+
+//Page Table of Child Process
+//Library
+index = 0;
+
+while (index<16)do
+    [ childPTBR + index ]  = [PTBR + index];
+    index = index + 1;
+endwhile;
+
+//Updating MEMORY_FREE_LIST of Lib and Heap
+index = 0;
+while (index<8)do
+    [MEMORY_FREE_LIST + [PTBR + index] ] = [MEMORY_FREE_LIST + [PTBR + index] ] + 1;
+    index = index + 2;
+endwhile;
+
+//MEMORY_FREE_LIST of Code Pages
+index = 8;
+while (index<15)do
+    if ([PTBR+index]!=-1)then
+        [MEMORY_FREE_LIST + [PTBR + index] ] = [MEMORY_FREE_LIST + [PTBR + index] ] + 1;  
+    endif;
+    index = index + 2;
+endwhile;
+
+//Copying stack page 1 word by word
+alias ParentStack R5;
+alias ChildStack R6;
+alias w R7;
+
+ParentStack = [PTBR + 16] * 512;
+ChildStack =  [ childPTBR + 16 ] * 512;
+w=0;
+while( w < 512 )do
+    [ChildStack + w ] = [ParentStack + w ];
+    w = w + 1;
+endwhile;
+
+//Copying stack page 2 word by word
+w=0;
+ParentStack = [PTBR + 18] * 512;
+ChildStack = [ childPTBR + 18 ] * 512;
+
+while( w < 512 )do
+    [ChildStack + w ] = [ParentStack + w ];
+    w = w + 1;
+endwhile;
+
+//Base Pointer
+[[PROCESS_TABLE + 16*cpid + 11] * 512 ] = BP;
+
+// Set Return value to ChildPID for Parent   
+alias physicalAddrRetVal R2;
+physicalAddrRetVal = ([PTBR + 2 * (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) / 512)] * 512) + (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) % 512);
+[physicalAddrRetVal] = cpid;
+
+//Set Return value to 0 for Child  
+physicalAddrRetVal = ([PAGE_TABLE_BASE  + 20*cpid  + 2 * (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) / 512)] * 512) + (([PROCESS_TABLE + ( ppid * 16) + 13] - 1) % 512);
+[physicalAddrRetVal] = 0;
+
+// Reset Mode Flag of parent
+[PROCESS_TABLE + ppid * 16 + 9] = 0;
+
+SP = [PROCESS_TABLE + ( ppid * 16) + 13];
+ireturn;

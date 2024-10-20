@@ -3,6 +3,28 @@
 alias fnumber R1;
 alias cpid R2;
 
+//GET PCB ENTRY
+if (fnumber == 1)then
+    multipush(R1,R2,R3);
+    
+    R1 = 0;
+    while ( R1 != MAX_PROC_NUM && [PROCESS_TABLE + 16*R1 + 4] != TERMINATED)do
+        R1 = R1 + 1;
+    endwhile;
+    if ( R1 == MAX_PROC_NUM )then
+        R0 = -1;
+    else
+        R0 = R1;
+        [PROCESS_TABLE + 16*R1 + 1]  = R1;
+        [PROCESS_TABLE + 16*R1 + 4]  = ALLOCATED;
+        [PROCESS_TABLE + 16*R1 + 14] = PAGE_TABLE_BASE + 20 * R1;
+        [PROCESS_TABLE + 16*R1 + 15] = 10;
+    endif;
+
+    multipop(R1,R2,R3);
+    return;
+endif;
+
 //FREE USER AREA PAGE 
 if (fnumber == 2)then
     multipush(R0,R1,R2,R3);

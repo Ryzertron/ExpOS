@@ -1,13 +1,13 @@
-[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]*16) + 4] = TERMINATED;
-alias pid R0;
-alias entry R1;
-pid = 1;
-while(pid < 16) do
-	entry = PROCESS_TABLE + pid*16;
-	if ([entry + 4] != TERMINATED) then
-		call SCHEDULER;
-	endif;
-	pid = pid + 1;
-endwhile;
-halt;
+[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 10;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+
+multipush(R0,R1,R2);
+
+R1 = 3; 
+R2 = [SYSTEM_STATUS_TABLE + 1];
+call PROCESS_MANAGER;
+
+multipop(R0,R1,R2);
+
+call SCHEDULER;
 

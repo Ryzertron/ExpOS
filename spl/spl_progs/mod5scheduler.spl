@@ -26,6 +26,7 @@ while(pid != currentPID) do
 			SP = [process_table_entry + 13];
 			[process_table_entry + 4] = RUNNING;			
 			[process_table_entry + 9] = 0;
+			BP = [[process_table_entry + 11] * 512];
 			ireturn;
 		endif;
 		[process_table_entry + 4] = RUNNING;
