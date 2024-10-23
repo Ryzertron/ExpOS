@@ -39,6 +39,10 @@ echo "INT 9"
 ./spl spl_progs/int9.spl
 echo "INT 10"
 ./spl spl_progs/int10.spl
+echo "INT 11"
+./spl spl_progs/int11.spl
+echo "INT 15"
+./spl spl_progs/int15.spl
 cd $HOME/myexpos/xfs-interface
 ./xfs-interface << EOF
 fdisk
@@ -52,6 +56,8 @@ load --int=7 ../spl/spl_progs/int7.xsm
 load --int=8 ../spl/spl_progs/int8.xsm
 load --int=9 ../spl/spl_progs/int9.xsm
 load --int=10 ../spl/spl_progs/int10.xsm
+load --int=11 ../spl/spl_progs/int11.xsm
+load --int=15 ../spl/spl_progs/int15.xsm
 load --module 0 ../spl/spl_progs/mod0resourcemanager.xsm
 load --module 1 ../spl/spl_progs/mod1processmanager.xsm
 load --module 2 ../spl/spl_progs/mod2memorymanager.xsm

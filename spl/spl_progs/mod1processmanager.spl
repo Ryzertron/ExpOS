@@ -41,11 +41,30 @@ if (fnumber == 3)then
     R1 = 4;
     R2 = cpid;
     call PROCESS_MANAGER;
+    multipop(R0,R1,R2,R3);
+    multipush(R0,R1,R2,R3);
     R1 = 2;
     R2 = cpid;
     call PROCESS_MANAGER;
     multipop(R0,R1,R2,R3);
     [PROCESS_TABLE + (cpid * 16) + 4] = TERMINATED;
+    
+    multipush(R1);
+    if ( [PROCESS_TABLE + (cpid * 16) + 9] != 9 )then
+        alias ind R1;
+        ind = 0;
+        while (ind < MAX_PROC_NUM)do
+            if ( [PROCESS_TABLE + ( ind * 16) + 4]== WAIT_PROCESS && [PROCESS_TABLE + ( ind * 16) + 5] == cpid )then
+                [PROCESS_TABLE + ( ind * 16) + 4] = READY;
+            endif;
+            if ( [PROCESS_TABLE + ( ind * 16) + 2] == cpid )then
+                [PROCESS_TABLE + ( ind * 16) + 2] = -1;
+            endif;
+            ind = ind + 1;
+        endwhile;
+    endif; 
+    multipop(R1);
+
     return;
 endif;
 
