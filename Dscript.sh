@@ -41,6 +41,10 @@ echo "INT 10"
 ./spl spl_progs/int10.spl
 echo "INT 11"
 ./spl spl_progs/int11.spl
+echo "INT 13"
+./spl spl_progs/int13.spl
+echo "INT 14"
+./spl spl_progs/int14.spl
 echo "INT 15"
 ./spl spl_progs/int15.spl
 cd $HOME/myexpos/xfs-interface
@@ -57,6 +61,8 @@ load --int=8 ../spl/spl_progs/int8.xsm
 load --int=9 ../spl/spl_progs/int9.xsm
 load --int=10 ../spl/spl_progs/int10.xsm
 load --int=11 ../spl/spl_progs/int11.xsm
+load --int=13 ../spl/spl_progs/int13.xsm
+load --int=14 ../spl/spl_progs/int14.xsm
 load --int=15 ../spl/spl_progs/int15.xsm
 load --module 0 ../spl/spl_progs/mod0resourcemanager.xsm
 load --module 1 ../spl/spl_progs/mod1processmanager.xsm

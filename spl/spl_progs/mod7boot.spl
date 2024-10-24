@@ -69,6 +69,14 @@ loadi(23,36);
 loadi(24,37);
 loadi(25,38);
 
+//INT 13
+loadi(28,41);
+loadi(29,42);
+
+//INT 14
+loadi(30,43);
+loadi(31,44);
+
 //INT 15
 loadi(32,45);
 loadi(33,46);
@@ -93,6 +101,19 @@ while(i!=128)do
     endif;
     i=i+1;
 endwhile;
+
+
+//Initialize Semaphore Table
+alias idx R1;
+idx = 0;
+
+while(idx < 32*4 )do
+    //Locking PID to -1 and Process Count to 0
+    [ SEMAPHORE_TABLE + idx ] = -1;
+    [ SEMAPHORE_TABLE + idx + 1] = 0;
+    idx = idx + 4;
+endwhile;
+
 
 [SYSTEM_STATUS_TABLE + 2] = 45;
 [SYSTEM_STATUS_TABLE + 3] = 0;

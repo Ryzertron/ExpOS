@@ -17,6 +17,52 @@ if ( fnumber == 3 )then
 	return;
 endif;
 
+//ACQUIRE SEMAPHORE
+if (fnumber == 6 )then
+    alias currentPID R2;
+    alias index R3;
+
+    index = 0;
+
+    while(index < 32 && [SEMAPHORE_TABLE + index*4 + 1] != 0)do
+        index = index + 1 ;
+    endwhile;
+    
+    if (index == 32)then
+        R0 = -1;
+    else    
+        //Locking PID
+        [SEMAPHORE_TABLE + index*4 + 0] = -1;
+        //Process Count
+        [SEMAPHORE_TABLE + index*4 + 1] = 1;
+        R0 = index;
+    endif;
+	return;
+endif;
+
+//RELEASE SEMAPHORE
+if (fnumber == 7 )then
+    alias semIndex R2;
+    alias currentPID R3;
+    alias i R4;
+
+    //Checking if locked by current process then release semaphore and all waiting processes
+    if ( [SEMAPHORE_TABLE + semIndex*4 ] ==  currentPID )then
+        //Unlock sempahore
+        [SEMAPHORE_TABLE + semIndex*4 ] = -1;
+        i=0;
+        while (i<16)do
+            if ( [ PROCESS_TABLE + i*16 + 4 ] == WAIT_SEMAPHORE && [ PROCESS_TABLE + i*16 + 5 ] == semIndex )then
+                [ PROCESS_TABLE + i*16 + 4 ] = READY;
+            endif;
+            i = i + 1;
+        endwhile;
+    endif;
+
+    [SEMAPHORE_TABLE + semIndex*4 + 1] = [SEMAPHORE_TABLE + semIndex*4 + 1] - 1;
+	return;
+endif;
+
 
 //Acquire Terminal Function
 if (fnumber == 8) then
