@@ -1,79 +1,94 @@
-
 alias userSP R0;
-userSP = SP;
+userSP=SP;
+alias cpid R10;
+R10 = [SYSTEM_STATUS_TABLE + 1];
 
-//set Mode Flag to syscall 9
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 9;
+//UPTR set to Stack Ptr
+[PROCESS_TABLE + ( cpid * 16) + 13] = SP;
 
-//save user SP and change SP value
-[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
-SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+//Stack Pointer set to bottom UA Page No.
+SP = [PROCESS_TABLE + (cpid * 16) + 11] * 512 - 1;
 
-alias arg R1;
-arg = [([PTBR + 2*((userSP - 4)/512)] * 512) + ((userSP-4) %512)];
+//Set MODE Flag to 9
+[PROCESS_TABLE + cpid * 16 + 9] = 9;
 
-//Checking if arg present in Inode Table
+alias physicalPageNum R1;
+alias offset R2;
+alias fileNamePhysicalAddr R3;
 
-alias incrementer R2;
-incrementer = 0;
+//find fileName from ARGS
 
-while(incrementer < MAX_FILE_NUM )do
-    if ( [ INODE_TABLE + (incrementer * 16) + 1 ] == arg )then
+physicalPageNum = [PTBR + 2 * ((userSP - 4)/ 512)];
+offset = (userSP - 4) % 512;
+fileNamePhysicalAddr = (physicalPageNum * 512) + offset;
+alias fileName R4;
+fileName=[fileNamePhysicalAddr];
+
+//File Existence Checks
+
+alias fileIndex R5;
+fileIndex = 0;
+
+while(fileIndex < MAX_FILE_NUM )do
+    if ( [ INODE_TABLE + ( fileIndex * 16 ) + 1 ] == fileName )then
         break;
     endif;
-    incrementer = incrementer + 1;
+    fileIndex = fileIndex + 1;
 endwhile;
 
-alias index R9;
-index = incrementer;
+//Case 1 File Not Found or File not having EXEC permissions
+//If no such file exists or XEXE format is not applicable
+if ( fileIndex == MAX_FILE_NUM || [ INODE_TABLE + ( fileIndex * 16 ) + 0 ] != EXEC )then
+    alias physicalAddrRetVal R6;
+    physicalAddrRetVal = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+    [physicalAddrRetVal] = -1;
 
-//If no such file exists or not in XEXE format 
-if ( index == MAX_FILE_NUM || [ INODE_TABLE + ( index * 16 ) ] != EXEC )then
-    [([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512)] = -1;
-    
     // Reset Mode Flag
-    [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+    [PROCESS_TABLE + cpid * 16 + 9] = 0;
 
     //Reset Stack pointer
-    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    SP = [PROCESS_TABLE + ( cpid * 16) + 13];
     ireturn;
 endif;
-//calling exit process
 
-multipush(R0,R1,R2);
+//Condition Valid
+
+//CAll EXIT From MOD1
+multipush(R0,R1,R2,R3,R4,R5,R6,R10,PTBR,PTLR);
 
 R1 = 3;
-R2 = [SYSTEM_STATUS_TABLE + 1];
+R2 = cpid;
 call PROCESS_MANAGER;
-multipop(R0,R1,R2);
 
-//Reclaiming UAPage
-alias UAPage R3;
-UAPage = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11];
+multipop(R0,R1,R2,R3,R4,R5,R6,R10,PTBR,PTLR);
+
+//Reclaiming User Area without invoking MOD2
+
+alias UAPage R7;
+UAPage = [PROCESS_TABLE + (cpid * 16) + 11];
 [MEMORY_FREE_LIST + UAPage] = [MEMORY_FREE_LIST + UAPage] + 1;
 [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
 
-//New Kernel Stack initialised from the bottom without offset
-SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+//UA set to bottom without any offset
+SP = [PROCESS_TABLE + (cpid * 16) + 11] * 512 - 1;
 
-alias perprocess R4;
-perprocess = (UAPage*512) + RESOURCE_TABLE_OFFSET;
-while ( perprocess < (UAPage+1)*512 )do
-    [perprocess] = -1;
-    perprocess = perprocess + 2;
+
+//Initializing New Per Process Resource Table
+alias PPRE R8 ;
+PPRE = (UAPage*512) + RESOURCE_TABLE_OFFSET;
+while ( PPRE < (UAPage+1)*512 )do
+    [PPRE] = -1;
+    PPRE = PPRE + 2;
 endwhile;
 
+//Setting State of the Process to RUNNING
+[PROCESS_TABLE + (cpid * 16) + 4] = RUNNING;
 
-//STATE field set
-[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 4] = RUNNING;
+//Set Inode index Entry in PCB (7)
+[PROCESS_TABLE + (cpid * 16) + 7] = fileIndex;
 
-//Inode index set
-[PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 7] = index;
-
-//Allocating Pages
-
-PTBR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 14];
-PTLR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 15];
+PTBR = [PROCESS_TABLE + (cpid * 16) + 14];
+PTLR = [PROCESS_TABLE + (cpid * 16) + 15];
 
 //Library
 [PTBR+0] = 63;
@@ -87,39 +102,19 @@ PTLR = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 15];
 [PTBR+6] = -1;
 [PTBR+7] = "0000";
 
-//Stack 2 pages
-multipush(R0,R1,R2,R3);
-
-R1 = 1;
-call MEMORY_MANAGER;
-[PTBR + 16] = R0;
-[PTBR + 17] = "0110";
-
-R1 = 1;
-call MEMORY_MANAGER;
-[PTBR + 18] = R0;
-[PTBR + 19] = "0110";
-
-multipop(R0,R1,R2,R3);
-
-
-
 //Code
-//Get Code Page (Assigning First Code Block a memory page)
 
-multipush(R0,R1,R2,R3,R4);
-
+//Only the First Code block is assigned
+multipush(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
 R1 = 5;
-R2 = [ INODE_TABLE + ( index * 16 ) + 8 ];
-R3 = [SYSTEM_STATUS_TABLE + 1];
-
+R2 = [ INODE_TABLE + ( fileIndex * 16 ) + 8 ];
+R3 = cpid;
 call MEMORY_MANAGER;
 
 [ PTBR + 8 ] = R0;
 [ PTBR + 9 ] = "0100";
 
-multipop(R0,R1,R2,R3,R4);
-
+multipop(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
 
 [PTBR+10] = -1;
 [PTBR+11] = "0000";
@@ -128,29 +123,39 @@ multipop(R0,R1,R2,R3,R4);
 [PTBR+14] = -1;
 [PTBR+15] = "0000";
 
+//Stack
+multipush(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR + 16 ] = R0;
+multipop(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
+[PTBR + 17 ] = "0110";
+
+multipush(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
+R1 = 1;
+call MEMORY_MANAGER;
+[PTBR + 18 ] = R0;
+multipop(R0,R1,R2,R3,R4,R5,R6,R7,R8,R9,R10,PTBR,PTLR);
+[PTBR + 19 ] = "0110";
 
 //Initialising Disk Map Table
-
-alias counter R4;
-alias currentPID R5;
-currentPID = [SYSTEM_STATUS_TABLE + 1];
-counter=0;
-while(counter < 10)do
-    [ DISK_MAP_TABLE + currentPID*10 + counter] = -1;
-    counter = counter + 1;
+alias index R9;
+index=0;
+while(index < 10)do
+    [ DISK_MAP_TABLE + cpid*10 + index] = - 1;
+    index = index + 1;
 endwhile;
 
-[DISK_MAP_TABLE + currentPID*10 + 4] =  [INODE_TABLE + ( index * 16 ) + 8];
-[DISK_MAP_TABLE + currentPID*10 + 5] =  [INODE_TABLE + ( index * 16 ) + 9];
-[DISK_MAP_TABLE + currentPID*10 + 6] =  [INODE_TABLE + ( index * 16 ) + 10];
-[DISK_MAP_TABLE + currentPID*10 + 7] =  [INODE_TABLE + ( index * 16 ) + 11];
-
-
+[ DISK_MAP_TABLE + cpid*10 + 4] =  [ INODE_TABLE + ( fileIndex * 16 ) + 8 ];
+[ DISK_MAP_TABLE + cpid*10 + 5] =  [ INODE_TABLE + ( fileIndex * 16 ) + 9 ];
+[ DISK_MAP_TABLE + cpid*10 + 6] =  [ INODE_TABLE + ( fileIndex * 16 ) + 10 ];
+[ DISK_MAP_TABLE + cpid*10 + 7] =  [ INODE_TABLE + ( fileIndex * 16 ) + 11 ];
 
 [[PTBR + 16] * 512] = [[PTBR + 8] * 512 + 1];
 
+
 // Reset Mode Flag
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
+[PROCESS_TABLE + cpid * 16 + 9] = 0;
 
 SP = 8 * 512;
 ireturn;

@@ -3,6 +3,7 @@ cd $HOME/myexpos/expl
 ./expl samples/shell.expl
 ./expl samples/even.expl
 ./expl samples/odd.expl
+./expl samples/rw.expl
 cd $HOME/myexpos/spl
 echo "------------Startup Code"
 ./spl spl_progs/startup.spl
@@ -75,6 +76,7 @@ load --os ../spl/spl_progs/startup.xsm
 load --init ../expl/samples/shell.xsm
 load --exec ../expl/samples/odd.xsm
 load --exec ../expl/samples/even.xsm
+load --exec ../expl/samples/rw.xsm
 exit
 EOF
 
