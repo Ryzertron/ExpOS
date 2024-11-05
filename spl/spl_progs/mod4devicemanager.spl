@@ -1,5 +1,31 @@
 alias fnumber R1;
-alias currentpid R2;
+alias currentPID R2;
+
+//DISK STORE
+if (fnumber == 1)then
+    alias PageNo R3;
+    alias BlockNo R4;
+
+    multipush(R3,R4);
+    R1 = 3;
+    call RESOURCE_MANAGER;
+    multipop(R3,R4);
+
+    //Store Bit
+    [DISK_STATUS_TABLE + 1] = 1;
+    //PageNo
+    [DISK_STATUS_TABLE + 2] = PageNo;
+    //BlockNo
+    [DISK_STATUS_TABLE + 3] = BlockNo;
+
+    store(PageNo,BlockNo);
+
+    [PROCESS_TABLE + ( currentPID* 16) + 4] = WAIT_DISK;
+
+    call SCHEDULER;
+
+	return;
+endif;
 
 //DISK LOAD function
 if (fnumber == 2)then
@@ -22,7 +48,7 @@ if (fnumber == 2)then
 
     load(pgnumber,blockno);
 
-    [PROCESS_TABLE + ( currentpid* 16) + 4] = WAIT_DISK;
+    [PROCESS_TABLE + ( currentPID* 16) + 4] = WAIT_DISK;
 
     multipush(R1,R2,R3,R4);
     call SCHEDULER;
@@ -35,14 +61,14 @@ if (fnumber == 3) then
 	//calling Acquire Terminal
 	multipush(R0,R1,R2,R3);
 	fnumber = 8;
-	//currentpid already contains PID so no need to update
+	//currentPID already contains PID so no need to update
 	call RESOURCE_MANAGER;
 	multipop(R0,R1,R2,R3);
 	alias word R3;
 	print (word);
 	multipush(R0,R1,R2,R3,R4);
 	fnumber = 9;
-	//currentpid already contains PID so no need to update
+	//currentPID already contains PID so no need to update
 	call RESOURCE_MANAGER;
 	multipop(R0,R1,R2,R3,R4);
 	return;
@@ -53,12 +79,12 @@ if (fnumber == 4) then
 	//calling Acquire Terminal
 	multipush(R0,R1,R2,R3);
 	fnumber = 8;
-	//currentpid already contains PID so no need to update
+	//currentPID already contains PID so no need to update
 	
 	call RESOURCE_MANAGER;
 	multipop(R0,R1,R2,R3);
 	read;
-	[PROCESS_TABLE + currentpid*16 + 4] = WAIT_TERMINAL;
+	[PROCESS_TABLE + currentPID*16 + 4] = WAIT_TERMINAL;
 	multipush(R0,R1,R2,R3);
 	call SCHEDULER;
 	multipop(R0,R1,R2,R3);
@@ -70,7 +96,7 @@ if (fnumber == 4) then
 	PhyAddr = ([PTBR + 2 * (VirAddr/ 512)] * 512) + (VirAddr % 512);
 	
 	//Copy Input buffer from process table to Variable location
-	[PhyAddr] = [PROCESS_TABLE + currentpid*16 + 8];
+	[PhyAddr] = [PROCESS_TABLE + currentPID*16 + 8];
 	return;
 endif;
 

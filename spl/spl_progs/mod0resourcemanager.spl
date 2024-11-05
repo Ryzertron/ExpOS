@@ -17,6 +17,56 @@ if ( fnumber == 3 )then
 	return;
 endif;
 
+//ACQUIRE INODE
+if (fnumber == 4 )then
+    alias inodeIndex R2;
+    alias currPID R3;
+
+//wait while file is locked
+    while ( [FILE_STATUS_TABLE + inodeIndex*4 ] != -1)do
+        [PROCESS_TABLE + ( currPID * 16) + 4] = WAIT_FILE;
+        [PROCESS_TABLE + ( currPID * 16) + 5] = inodeIndex;
+        multipush(R1,R2,R3);
+        call SCHEDULER;
+        multipop(R1,R2,R3);
+    endwhile;
+
+    //already deleted by some process
+    if ( [INODE_TABLE + 16*inodeIndex] == -1 )then
+        R0 = -1;
+    else
+        //Locked
+        [FILE_STATUS_TABLE + inodeIndex*4 ] = currPID;
+        R0 = 0;
+    endif;
+
+endif;
+
+
+//RELEASE INODE
+if (fnumber == 5 )then
+    alias inodeIndex R2;
+    alias currPID R3;
+    alias index R4;
+
+    if ([FILE_STATUS_TABLE + inodeIndex*4 ] != currPID)then
+        R0 = -1;
+    else
+        [FILE_STATUS_TABLE + inodeIndex*4 ] = -1;
+        index=0;
+        //Loop through and make every process ready
+        while( index != 16 )do
+            if ( [PROCESS_TABLE + ( index * 16) + 4] == WAIT_FILE && [PROCESS_TABLE + ( index * 16) + 5] == inodeIndex)then
+                [PROCESS_TABLE + ( index * 16) + 4] = READY;
+            endif;
+            index = index + 1;
+        endwhile;
+        R0 = 0;
+    endif;
+
+endif;
+
+
 //ACQUIRE SEMAPHORE
 if (fnumber == 6 )then
     alias currentPID R2;
@@ -100,3 +150,4 @@ if (fnumber == 9) then
 	retval = 0;
 	return;
 endif;
+return;

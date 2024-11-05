@@ -4,6 +4,8 @@ cd $HOME/myexpos/expl
 ./expl samples/even.expl
 ./expl samples/odd.expl
 ./expl samples/rw.expl
+./expl samples/fC.expl
+./expl samples/fD.expl
 cd $HOME/myexpos/spl
 echo "------------Startup Code"
 ./spl spl_progs/startup.spl
@@ -30,6 +32,8 @@ echo "Scheduler"
 echo "Boot Module"
 ./spl spl_progs/mod7boot.spl
 echo "------------Compiling Software Interrupts"
+echo "INT 4"
+./spl spl_progs/int4.spl
 echo "INT 6"
 ./spl spl_progs/int6.spl
 echo "INT 7"
@@ -56,6 +60,7 @@ load --exhandler ../spl/spl_progs/exhandler.xsm
 load --int=timer ../spl/spl_progs/timer.xsm
 load --int=disk ../spl/spl_progs/disk.xsm
 load --int=console ../spl/spl_progs/console.xsm
+load --int=4 ../spl/spl_progs/int4.xsm
 load --int=6 ../spl/spl_progs/int6.xsm
 load --int=7 ../spl/spl_progs/int7.xsm
 load --int=8 ../spl/spl_progs/int8.xsm

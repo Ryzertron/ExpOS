@@ -1,0 +1,17 @@
+int main()
+{
+    decl
+        int a,temp;
+        str input;
+    enddecl
+    begin
+        temp = exposcall("Write",-2,"--Enter");
+        temp = exposcall("Write",-2,">File Name: ");
+
+        temp = exposcall("Read",-1,input);
+        a = exposcall("Delete",input);
+        temp = exposcall("Write",-2,">Return val - ");
+        temp = exposcall("Write",-2,a);
+        return 0;
+    end
+}
