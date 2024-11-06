@@ -158,4 +158,5 @@ endwhile;
 [PROCESS_TABLE + cpid * 16 + 9] = 0;
 
 SP = 8 * 512;
+
 ireturn;

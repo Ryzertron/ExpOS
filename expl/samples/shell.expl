@@ -8,15 +8,18 @@ begin
     while(1 == 1) do
         temp = exposcall("Write",-2,"$-------------");
         temp = exposcall("Read",-1, input);
+        
         if(input != "shutdown") then
             pid = exposcall("Fork");
+            
             if(pid < 0) then
                 temp = exposcall("Write",-2, "Fork Failure");
                 continue;
             endif;
             if(pid != 0) then
+            		
                 temp = exposcall("Wait",pid);
-            else
+            else 		
                 temp = exposcall("Exec",input);
                 if(temp != 0) then
                     temp = exposcall("Write",-2, "BAD COMMAND");

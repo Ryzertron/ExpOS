@@ -1,6 +1,49 @@
 alias fnumber R1;
 alias currentpid R2;
 
+//ACQUIRE BUFFER
+if ( fnumber == 1 )then
+    alias BufferNo R2;
+    alias currPID R3;
+
+    //Checking Buffer Status table to see if Buffer is free
+    while ([BUFFER_TABLE + 4*BufferNo + 2] != -1 )do
+        [PROCESS_TABLE + ( currPID * 16) + 4] = WAIT_BUFFER;
+        [PROCESS_TABLE + ( currPID * 16) + 5] = BufferNo;
+        multipush(R2,R3);
+        call SCHEDULER;
+        multipop(R2,R3);
+    endwhile;
+
+    //Setting Locking PID in Buffer Status Table
+    [BUFFER_TABLE + 4*BufferNo + 2] = currPID;
+    return;
+endif;
+
+//RELEASE BUFFER
+if ( fnumber == 2 )then
+    alias BufferNo R2;
+    alias currPID R3;
+    alias index R4;
+
+    //If this PID did not lock
+    if ([BUFFER_TABLE + 4*BufferNo + 2]!=currPID)then
+        R0 = -1;
+    else
+        [BUFFER_TABLE + 4*BufferNo + 2] = -1;
+        index=0;
+        //Loop through and make every process ready
+        while( index != 16 )do
+            if ( [PROCESS_TABLE + ( index * 16) + 4] == WAIT_BUFFER &&  [PROCESS_TABLE + ( index * 16) + 5] == BufferNo)then
+                [PROCESS_TABLE + ( index * 16) + 4] = READY;
+            endif;
+            index = index + 1;
+        endwhile;
+        R0 = 0;
+    endif;
+    return;
+endif;
+
 //Acquire Disk
 if ( fnumber == 3 )then
     //Waiting for Disk to be released

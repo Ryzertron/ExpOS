@@ -25,6 +25,8 @@ echo "Process Manager"
 ./spl spl_progs/mod1processmanager.spl
 echo "Memory Manager"
 ./spl spl_progs/mod2memorymanager.spl
+echo "File Manager"
+./spl spl_progs/mod3filemanager.spl
 echo "Device Manager"
 ./spl spl_progs/mod4devicemanager.spl
 echo "Scheduler"
@@ -34,6 +36,8 @@ echo "Boot Module"
 echo "------------Compiling Software Interrupts"
 echo "INT 4"
 ./spl spl_progs/int4.spl
+echo "INT 5"
+./spl spl_progs/int5.spl
 echo "INT 6"
 ./spl spl_progs/int6.spl
 echo "INT 7"
@@ -61,6 +65,7 @@ load --int=timer ../spl/spl_progs/timer.xsm
 load --int=disk ../spl/spl_progs/disk.xsm
 load --int=console ../spl/spl_progs/console.xsm
 load --int=4 ../spl/spl_progs/int4.xsm
+load --int=5 ../spl/spl_progs/int5.xsm
 load --int=6 ../spl/spl_progs/int6.xsm
 load --int=7 ../spl/spl_progs/int7.xsm
 load --int=8 ../spl/spl_progs/int8.xsm
@@ -73,6 +78,7 @@ load --int=15 ../spl/spl_progs/int15.xsm
 load --module 0 ../spl/spl_progs/mod0resourcemanager.xsm
 load --module 1 ../spl/spl_progs/mod1processmanager.xsm
 load --module 2 ../spl/spl_progs/mod2memorymanager.xsm
+load --module 3 ../spl/spl_progs/mod3filemanager.xsm
 load --module 4 ../spl/spl_progs/mod4devicemanager.xsm
 load --module 5 ../spl/spl_progs/mod5scheduler.xsm
 load --module 7 ../spl/spl_progs/mod7boot.xsm
