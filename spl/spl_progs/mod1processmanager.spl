@@ -140,6 +140,52 @@ if (fnumber == 4)then
 endif;
 
 
+//KILL ALL 
+if (fnumber == 5)then
+    alias index R4;
+    index = 0 ;
+    while (index < MAX_FILE_NUM ) do
+        if( [INODE_TABLE + 16*index + 1] != -1)then
+        //Acquire Inode
+            multipush(R1,R2,R4);
+            R3 = cpid;
+            R2 = index;
+            R1 = 4;
+            call RESOURCE_MANAGER;
+            multipop(R1,R2,R4);
+        endif;
+        index = index + 1;
+    endwhile;
+
+
+    //Swapper Daemon not implemented
+    index = 2;
+    while ( index < MAX_PROC_NUM )do
+        if ( index != cpid && [PROCESS_TABLE + index*16 + 4]!=TERMINATED )then
+            multipush(R1,R2,R4);
+            R2 = cpid;
+            R1 = 3;
+            call PROCESS_MANAGER;
+            multipop(R1,R2,R4);
+        endif;
+        index = index + 1;
+    endwhile;
+//Release Inode
+    index = 0;
+    while (index < MAX_FILE_NUM )do
+        if( [INODE_TABLE + 16*index + 1] != -1 )then
+            multipush(R2,R4);
+            R3 = cpid;
+            R2 = index;
+            R1 = 5;
+            call RESOURCE_MANAGER;
+            multipop(R2,R4);
+        endif;
+        index = index + 1;
+    endwhile;
+    return;
+endif;
+
 
 
 

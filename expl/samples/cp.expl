@@ -1,0 +1,42 @@
+int main()
+{
+    decl
+        int temp,fd1,fd2,ret;
+        str source,dest,x;
+    enddecl
+    begin
+    		x="NULL";
+        temp = exposcall("Write",-2,"Source? ");
+        temp = exposcall("Read",-1,source);
+        
+        temp = exposcall("Write",-2,"Target? ");
+        temp = exposcall("Read",-1,dest);
+
+        fd1 = exposcall("Open",source);
+
+        //Try to open destination file
+        fd2 = exposcall("Open",dest);
+
+        //If file not created
+        if ( fd2 < 0 )then
+            temp = exposcall("Create",dest,1);
+            fd2 = exposcall("Open",dest);
+        endif;
+
+        // Seek to start of source
+        temp = exposcall("Seek",fd1,0);
+        temp = exposcall("Seek",fd2,0);
+
+        //Copying File
+        ret = exposcall("Read",fd1,x);
+        while( ret != -2)do
+            temp = exposcall("Write",fd2,x);
+            ret = exposcall("Read",fd1,x);
+        endwhile;
+
+        temp = exposcall("Close",fd1);
+        temp = exposcall("Close",fd2);
+
+        return 0;
+    end
+}

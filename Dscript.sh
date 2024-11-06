@@ -6,6 +6,10 @@ cd $HOME/myexpos/expl
 ./expl samples/rw.expl
 ./expl samples/fC.expl
 ./expl samples/fD.expl
+./expl samples/ls.expl
+./expl samples/cat.expl
+./expl samples/cp.expl
+./expl samples/rm.expl
 cd $HOME/myexpos/spl
 echo "------------Startup Code"
 ./spl spl_progs/startup.spl
@@ -88,6 +92,11 @@ load --init ../expl/samples/shell.xsm
 load --exec ../expl/samples/odd.xsm
 load --exec ../expl/samples/even.xsm
 load --exec ../expl/samples/rw.xsm
+load --exec ../expl/samples/ls.xsm
+load --exec ../expl/samples/cat.xsm
+load --exec ../expl/samples/cp.xsm
+load --exec ../expl/samples/rm.xsm
+load --data numbers.dat
 exit
 EOF
 

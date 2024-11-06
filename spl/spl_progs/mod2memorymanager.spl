@@ -25,6 +25,26 @@ if (fnumber == 1)then
     return;
 endif;
 
+//Get Free Block
+if (fnumber == 3)then
+
+    alias blockNo R2;
+
+    blockNo = DISK_FREE_AREA;
+    while(blockNo < DISK_SWAP_AREA &&  [DISK_FREE_LIST + blockNo]==1 )do
+        blockNo = blockNo + 1;
+    endwhile;
+
+    if (blockNo==DISK_SWAP_AREA)then
+        R0 = -1;
+    else
+        [DISK_FREE_LIST + blockNo] = 1;
+        R0 = blockNo;
+    endif;
+    return;
+endif;
+
+
 //Release Page Function
 if (fnumber == 2) then
 	[MEMORY_FREE_LIST + pgnumber] = 	[MEMORY_FREE_LIST + pgnumber] - 1;

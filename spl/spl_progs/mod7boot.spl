@@ -97,6 +97,9 @@ loadi(33,46);
 loadi(59,3);
 loadi(60,4);
 
+//Root File
+loadi(62,5);
+
 //Disk Free LIst
 loadi(61,2);
 
