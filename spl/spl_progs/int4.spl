@@ -165,10 +165,11 @@ if (sysCallNo == 4)then
         ireturn; 
     endif;
 
-    //userid is not same as owner of file - *Cannot check yet*
+    //userid is not same as owner of file
     if ([inodeBase + 4] == 0)then
         //User id isnt root or owner
-        if ([inodeBase + 3] != 1 && [inodeBase + 3] != userID )then
+        if ([inodeBase + 3] != 0 && [inodeBase + 3] != userID )then
+        		
             [return_addr] = -1;
 
             // Reset Mode Flag

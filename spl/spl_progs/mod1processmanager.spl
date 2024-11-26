@@ -159,6 +159,7 @@ if (fnumber == 5)then
 
 
     //Swapper Daemon not implemented
+    
     index = 2;
     while ( index < MAX_PROC_NUM )do
         if ( index != cpid && [PROCESS_TABLE + index*16 + 4]!=TERMINATED )then

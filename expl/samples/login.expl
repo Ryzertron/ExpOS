@@ -1,0 +1,25 @@
+int main()
+{
+    decl
+        int temp,fd,retval;
+        str username,password;
+    enddecl
+    begin
+        while(1==1)do
+            temp = exposcall("Write",-2,"username");
+            temp = exposcall("Read",-1,username);
+            temp = exposcall("Write",-2,"password");
+            temp = exposcall("Read",-1,password);
+            retval = exposcall("Login",username,password);
+            if (retval==-1)then
+                temp = exposcall("Write",-2,"Wrong Passwd");
+            else
+                if (retval == -2)then
+                    temp = exposcall("Write",-2,"Login Failed");
+                endif;
+            endif;
+        endwhile;
+        return 0;
+    end
+}
+

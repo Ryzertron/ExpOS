@@ -5,8 +5,7 @@ int main()
         str input;
     enddecl
     begin
-        temp = exposcall("Write",-2,"--Enter");
-        temp = exposcall("Write",-2,">File Name: ");
+        temp = exposcall("Write",-2,"File Name: ");
 
         temp = exposcall("Read",-1,input);
         a = exposcall("Delete",input);

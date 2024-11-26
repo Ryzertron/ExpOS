@@ -1,18 +1,14 @@
 int main()
 {
     decl
-        int a,temp,fd,i,ret;
-        str input,inv,x,winp,rinp;
+        int a,temp;
+        str input;
     enddecl
     begin
-        x="NULL";
-        rinp = "Deleted";
-        temp = exposcall("Write",-2,"FileName? ");
+        temp = exposcall("Write",-2,"File Name: ");
         temp = exposcall("Read",-1,input);
-        temp = exposcall("Delete",input);
-        temp = exposcall("Write",-2,rinp);
-
-
+        a = exposcall("Delete",input);
+        temp = exposcall("Write",-2,a);
         return 0;
     end
 }
