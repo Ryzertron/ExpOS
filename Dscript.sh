@@ -36,6 +36,8 @@ echo "Device Manager"
 ./spl spl_progs/mod4devicemanager.spl
 echo "Scheduler"
 ./spl spl_progs/mod5scheduler.spl
+echo "Pager Module"
+./spl spl_progs/mod6pager.spl
 echo "Boot Module"
 ./spl spl_progs/mod7boot.spl
 echo "------------Compiling Software Interrupts"
@@ -95,6 +97,7 @@ load --module 2 ../spl/spl_progs/mod2memorymanager.xsm
 load --module 3 ../spl/spl_progs/mod3filemanager.xsm
 load --module 4 ../spl/spl_progs/mod4devicemanager.xsm
 load --module 5 ../spl/spl_progs/mod5scheduler.xsm
+load --module 6 ../spl/spl_progs/mod6pager.xsm
 load --module 7 ../spl/spl_progs/mod7boot.xsm
 load --library ../expl/library.lib
 load --os ../spl/spl_progs/startup.xsm

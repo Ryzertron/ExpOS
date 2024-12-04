@@ -122,3 +122,23 @@ if(fnumber == 5) then
 endif;
 
 
+//Get Swap Block
+if (fnumber == 6)then
+    alias blockNo R2;
+    blockNo = DISK_SWAP_AREA;
+    while(blockNo < DISK_SIZE &&  [DISK_FREE_LIST + blockNo]!=0 )do
+        blockNo = blockNo + 1;
+    endwhile;
+
+    if (blockNo==DISK_SIZE)then
+        R0 = -1;
+    else
+        [DISK_FREE_LIST + blockNo] = 1;
+        R0 = blockNo;
+    endif;
+    return;
+endif;
+
+
+return;
+

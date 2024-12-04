@@ -22,6 +22,10 @@ loadi(49,62);
 loadi(50,63);
 loadi(51,64);
 
+//Load Pager Module 6
+loadi(52,65);
+loadi(53,66);
+
 //Load INIT PROGRAM
 loadi(65,7);
 loadi(66,8);
@@ -29,9 +33,6 @@ loadi(66,8);
 //Load SHELL
 loadi(67,9);
 loadi(68,10);
-
-//Load Exec
-loadi(83,69);
 
 //Load Library
 loadi(63,13);
@@ -163,16 +164,9 @@ PTLR = 10;
 [PROCESS_TABLE+31]=10;
 [66*512] = [65 * 512 + 1];
 
-//Disk Map Table for Init Process
-alias index R1;
-index = 0;
-while(index<10)do
-    [ DISK_MAP_TABLE + 10 + index] = -1;
-    index=index+1;
-endwhile;
 
-[ DISK_MAP_TABLE + 20 + 4] = 7;
-[ DISK_MAP_TABLE + 20 + 5] = 8;
+
+
 
 
 //-------------------------SHELL PROCESS
@@ -210,7 +204,7 @@ PTBR = PAGE_TABLE_BASE + 40;
 [PROCESS_TABLE + 32] = 0;
 [PROCESS_TABLE + 33] = 2;
 [PROCESS_TABLE + 35] = 0;
-//[PROCESS_TABLE + 36] = TERMINATED;
+[PROCESS_TABLE + 36] = TERMINATED;
 [PROCESS_TABLE + 43] = 80;
 [PROCESS_TABLE + 44] = 0;
 [PROCESS_TABLE + 45] = 4096; 
@@ -219,24 +213,31 @@ PTBR = PAGE_TABLE_BASE + 40;
 [78 * 512] = [67 * 512 + 1];
 
 
-//Disk Map Table for Shell Process
+//Disk Map Table for Shell  and Init Process
+alias index R4;
 index = 0;
 while(index<10)do
+	[ DISK_MAP_TABLE + 10 + index] = -1;
     [ DISK_MAP_TABLE + 20 + index] = -1;
     index=index+1;
 endwhile;
 
-[ DISK_MAP_TABLE + 20 + 4] = 9;
-[ DISK_MAP_TABLE + 20 + 5] = 10;
+[ DISK_MAP_TABLE + 14] = 7;
+[ DISK_MAP_TABLE + 15] = 8;
+[ DISK_MAP_TABLE + 24] = 9;
+[ DISK_MAP_TABLE + 25] = 10;
+
 
 
 //----------------------------------------Initializing Structures
 alias idx R0;
-
+alias pte R9;
 //Setting rest of the processes to TERMINATED
-idx = 2;
+idx = 3;
 while(idx<16)do
-    [PROCESS_TABLE + 16*idx + 4] = TERMINATED;
+	pte = PROCESS_TABLE + 16*idx;
+	[pte] = 0;
+    [pte + 4] = TERMINATED;
     idx = idx + 1;
 endwhile;
 
@@ -258,7 +259,7 @@ while(idx !=128)do
     idx=idx+1;
 endwhile;
 
-
+[SYSTEM_STATUS_TABLE] = 0;
 [SYSTEM_STATUS_TABLE + 2] = 45;
 [SYSTEM_STATUS_TABLE + 3] = 0;
 [SYSTEM_STATUS_TABLE + 4] = 0;
@@ -282,33 +283,37 @@ endwhile;
 idx = 0;
 while(idx < 32*4 )do
     //Locking PID to -1 and Process Count to 0
-    [ SEMAPHORE_TABLE + idx ] = -1;
-    [ SEMAPHORE_TABLE + idx + 1] = 0;
+    pte = SEMAPHORE_TABLE + idx;
+    [pte] = -1;
+    [pte + 1] = 0;
     idx = idx + 4;
 endwhile;
 
 //Buffer Table
 idx = 0;
 while(idx < MAX_BUFFER)do
-    [BUFFER_TABLE + 4*idx ] = -1;
-    [BUFFER_TABLE + 4*idx + 1 ] = 0;
-    [BUFFER_TABLE + 4*idx + 2 ] = -1;
+	pte = BUFFER_TABLE + 4*idx;
+    [pte] = -1;
+    [pte + 1] = 0;
+    [pte + 2] = -1;
     idx = idx + 1;
 endwhile;
 
 //File Status Table
 idx = 0;
 while(idx < MAX_FILE_NUM)do
-    [FILE_STATUS_TABLE + 4*idx ] = -1;
-    [FILE_STATUS_TABLE + 4*idx + 1 ] = -1;
+	pte = FILE_STATUS_TABLE + 4*idx;
+    [pte ] = -1;
+    [pte + 1 ] = -1;
     idx = idx + 1;
 endwhile;
 
 //Open File Table
 idx = 0;
 while(idx < MAX_OPENFILE_NUM)do
-    [OPEN_FILE_TABLE + 4*idx ] = -1;
-    [OPEN_FILE_TABLE + 4*idx + 1] = 0;
+	pte = OPEN_FILE_TABLE + 4*idx;
+    [pte] = -1;
+    [pte + 1] = 0;
     idx = idx + 1;
 endwhile;
 return;

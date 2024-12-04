@@ -12,39 +12,46 @@ multipush(BP);
 [process_table_entry + 15] = PTLR;
 
 alias pid R2;
-pid = (currentPID+1)%16;
+pid = 0;
 
-while(pid != currentPID) do
-	process_table_entry = PROCESS_TABLE + pid * 16;	
-	if ([process_table_entry + 4] == READY || [process_table_entry + 4] == CREATED) then
-		SP = [process_table_entry + 11]*512 + [process_table_entry + 12];
-		
-		PTBR = [process_table_entry + 14];
-		PTLR = [process_table_entry + 15];
-		[SYSTEM_STATUS_TABLE + 1] = [process_table_entry + 1];
-		if ([process_table_entry + 4] == CREATED) then
-			SP = [process_table_entry + 13];
-			[process_table_entry + 4] = RUNNING;			
-			[process_table_entry + 9] = 0;
-			BP = [[process_table_entry + 11] * 512];
-			ireturn;
-		endif;
-		[process_table_entry + 4] = RUNNING;
-		multipop(BP);
-		return;
+//Check for Swapper Daemon.
+if ([SYSTEM_STATUS_TABLE + 5] != 0) then
+
+	if ([PROCESS_TABLE + 16*15 + 4] == WAIT_DISK) then
+		pid = 0;
+	else
+		pid = 15;
 	endif;
-	pid = (pid+1) % 16;
-endwhile;
-process_table_entry = PROCESS_TABLE;
-SP = [process_table_entry + 11]*512 + [process_table_entry + 12];
+	
+else	
+	pid = (currentPID+1)%15;
+	while(pid != currentPID) do
+		process_table_entry = PROCESS_TABLE + pid * 16;	
+		if ([process_table_entry + 6] == 0 && ([process_table_entry + 4] == READY || [process_table_entry + 4] == CREATED)) then
+			break;
+		endif;
+		pid = (pid+1) % 15;
+	endwhile;
+	
+	if(pid == currentPID) then
+		pid = 0;
+	endif;
+endif;
+
+process_table_entry = PROCESS_TABLE + pid * 16;
 PTBR = [process_table_entry + 14];
 PTLR = [process_table_entry + 15];
-[SYSTEM_STATUS_TABLE + 1] = 0;
+[SYSTEM_STATUS_TABLE + 1] = pid;
+
+if ([process_table_entry + 4] == CREATED) then
+	SP = [process_table_entry + 13];
+	[process_table_entry + 4] = RUNNING;			
+	[process_table_entry + 9] = 0;
+	BP = [[process_table_entry + 11] * 512];
+	ireturn;
+endif;
+
+SP = [process_table_entry + 11]*512 + [process_table_entry + 12];
 [process_table_entry + 4] = RUNNING;
 multipop(BP);
 return;
-
-
-
-	
-		
